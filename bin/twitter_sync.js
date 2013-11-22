@@ -1,7 +1,8 @@
 #!/usr/local/bin/node
 
 /**
- * Run for a given user
+ * Run for a given user.
+ * Run every hour via cron or something.
  */
 
 // Rate limiting library
@@ -29,24 +30,32 @@ var twit = new twitter({
 
 var limited = rateLimit(FIVETEEN_MIN, MAX_TIMELINE_CALLS);
 
-function fullSync(screenName) {
+function fullSync(screenName, cb) {
     limited(function() {
         var params = {
-            screen_name: screenName
+            screen_name: screenName,
+            count: MAX_TWEETS_PER_PAGE
         };
-        // Full Sync
         twit.getUserTimeline(params, function(tweets) {
-            saveTweets(params, tweets);
-            console.log('tweets=', tweets);
             var lowestId = findLowestId(tweets);
-            if (lowestId > 0) {
+            var alreadySeen = alreadySeenID(lowestId);
+            recordIDs(tweets);
+
+            saveTweets(params, tweets);
+
+            if (false === alreadySeen && lowestId > 0) {
                 limited(function() {
-                    fetchPage(screenName, lowestId - 1, MAX_TWEETS_PER_PAGE);
+                    fetchOldPage(screenName, lowestId - 1, MAX_TWEETS_PER_PAGE, cb);
                 });
+            } else {
+                if (alreadySeen) console.log('All caught up');
+                cb();
             }
         });
     });
 }
+
+var allIds = {};
 
 /**
  * If there are no lower ids (because results were empty)
@@ -56,37 +65,101 @@ function findLowestId(tweets) {
     var lowest = -1;
 
     tweets.forEach(function(tweet) {
+
         if (lowest === -1 || tweet.id < lowest) {
             lowest = tweet.id;
         }
     });
-    console.log('Lowest Tweet ID seen is', lowest);
     return lowest;
+}
+
+/**
+ * If there are no lower ids (because results were empty)
+ * code returns -1
+ */
+function findHighestId(tweets) {
+    var highest = -1;
+
+    tweets.forEach(function(tweet) {
+        if (highest === -1 || tweet.id > highest) {
+            highest = tweet.id;
+        }
+    });
+    return highest;
+}
+
+function recordIDs(tweets) {
+    tweets.forEach(function(tweet) {
+        allIds['' + tweet.id] = true;
+    });
+}
+
+function alreadySeenID(id) {
+  return allIds['' + id] === true;
 }
 
 function saveTweets(params, tweets) {
     var start = params.max_id || 'start';
     var filename = params.screen_name + '_' + start + '.json';
-    fs.writeFile(filename, JSON.stringify(tweets, null, 4), 'utf8');
+    fs.writeFile(path.join(dataDirectory(), filename), JSON.stringify(tweets, null, 4), 'utf8');
 }
 
-function fetchPage(screenName, maxId, count) {
+function fetchOldPage(screenName, maxId, count, cb) {
     var params = {
         screen_name: screenName,
         max_id: maxId,
         count: count
     };
     twit.getUserTimeline(params, function(tweets) {
+        var lowestId = findLowestId(tweets);
+        var alreadySeen = alreadySeenID(lowestId);
+        recordIDs(tweets);
 
         saveTweets(params, tweets);
 
-        var lowestId = findLowestId(tweets);
-
-        if (lowestId > 0) {
+        if (false === alreadySeen && lowestId > 0) {
             limited(function() {
-                fetchPage(screenName, lowestId - 1, MAX_TWEETS_PER_PAGE);
+                fetchOldPage(screenName, lowestId - 1, MAX_TWEETS_PER_PAGE, cb);
             });
+        } else {
+            if (alreadySeen) console.log('All caught up now');
+            cb();
         }
     });
 }
-fullSync('ozten');
+
+function dataDirectory() {
+    return path.resolve(__dirname, '../data');
+}
+
+var screenName = 'ozten';
+
+/**
+ * Examine the file system and figure out the most recent
+ * tweet ID we have on file.
+ */
+function maxIdOnDisk(screenName, cb) {
+    var maxId = -1;
+    fs.readdir(dataDirectory(), function(err, files) {
+        if (err) throw new Error(err);
+        files.forEach(function(file) {
+            if (file.indexOf(screenName) === 0) {
+                var data = fs.readFileSync(path.join(dataDirectory(), file), 'utf8');
+
+                var tweets = JSON.parse(data);
+                recordIDs(tweets);
+                var highest = findHighestId(tweets);
+                if (maxId === -1 || highest > maxId) {
+                    maxId = highest;
+                }
+            }
+        });
+        cb(maxId);
+    });
+}
+
+maxIdOnDisk(screenName, function(previousMaxId) {
+    fullSync(screenName, function () {
+        console.log('Finished fullSync');
+    });
+});

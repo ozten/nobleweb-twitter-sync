@@ -63,7 +63,9 @@ var allIds = {};
  */
 function findLowestId(tweets) {
     var lowest = -1;
-
+    if (! tweets.forEach) {
+        return lowest;
+    }
     tweets.forEach(function(tweet) {
 
         if (lowest === -1 || tweet.id < lowest) {
@@ -79,7 +81,9 @@ function findLowestId(tweets) {
  */
 function findHighestId(tweets) {
     var highest = -1;
-
+    if (! tweets.forEach) {
+        return lowest;
+    }
     tweets.forEach(function(tweet) {
         if (highest === -1 || tweet.id > highest) {
             highest = tweet.id;

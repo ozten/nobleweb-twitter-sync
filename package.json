@@ -1,0 +1,34 @@
+{
+  "name": "nobleweb-twitter-sync",
+  "version": "0.0.0",
+  "description": "A NobleWeb service for syncing one's tweets",
+  "main": "bin/twitter_sync.js",
+  "bin": {
+    "twitter-sync": "rate_limit.js"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "twitter": "~0.2.5"
+  },
+  "devDependencies": {
+    "tap": "~0.4.6"
+  },
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ozten/nobleweb-twitter-sync.git"
+  },
+  "keywords": [
+    "nobleweb",
+    "twitter"
+  ],
+  "author": "ozten",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/ozten/nobleweb-twitter-sync/issues"
+  }
+}

@@ -13,6 +13,7 @@ var path = require('path');
 var twitter = require('twitter');
 
 var rateLimit = require('../lib/rate_limit');
+var dataDirectory = require('../lib/storage').dataDirectory;
 
 var config = JSON.parse(fs.readFileSync(
     path.join(__dirname, '../config/config.json')));
@@ -132,9 +133,7 @@ function fetchOldPage(screenName, maxId, count, cb) {
     });
 }
 
-function dataDirectory() {
-    return path.resolve(__dirname, '../data');
-}
+
 
 var screenName = 'ozten';
 

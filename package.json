@@ -10,7 +10,8 @@
     "test": "test"
   },
   "dependencies": {
-    "twitter": "~0.2.5"
+    "twitter": "~0.2.5",
+    "nunjucks": "1.0.0"
   },
   "devDependencies": {
     "tap": "~0.4.6"

@@ -1,0 +1,25 @@
+.user img {
+
+    left: left;
+    position: absolute;
+}
+
+.username {
+    margin-left: 70px;
+}
+
+div, p {
+    margin-left: 5px;
+}
+
+.tweet, .created_at {
+    margin-left: 70px;
+}
+
+.tweet {
+    width: 80%;
+}
+
+.screen_name, .created_at {
+    color: #DDD;
+}

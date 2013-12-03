@@ -3,9 +3,11 @@
 var fs = require('fs');
 var path = require('path');
 
+var moment = require('moment');
 var nunjucks = require('nunjucks');
 
 var dataDirectory = require('../lib/storage').dataDirectory;
+var linkify = require('../lib/linkify');
 var rateLimit = require('../lib/rate_limit');
 
 //nunjucks.configure('../templates');
@@ -108,5 +110,6 @@ function ensureDirectory(username, aDate, cb) {
 }
 
 function normalizeTweet(tweet) {
-
+  tweet.html = linkify(tweet.text);
+  tweet.display_date = moment(tweet.created_at).format('llll');
 }

@@ -1,27 +1,28 @@
 <!DOCTYPE html>
-<html lang="{{lang}}">
+<html lang="{{lang}}" langdir="ltr">
 <head>
     <meta charset="utf-8">
     <title>{{text}}</title>
+    <link href="../../../stylo.css"  rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <div class="user"><a href="https://twitter.com/{{user.screen_name}}"><img src="{{user.profile_image_url}}" />{{user.name}}</a></div>
-    <p id="{{id}}">{{text}} {% if truncated %}&#8230;{% endif %}</p>
-    <p><b>Created At:</b> {{created_at}}</p>
+    <div class="user">
+        <a href="https://twitter.com/{{user.screen_name}}"><img src="{{user.profile_image_url}}" /></a>
+        <a href="https://twitter.com/{{user.screen_name}}"><span class="username">{{user.name}}</span></a>
+        <a href="https://twitter.com/{{user.screen_name}}"><span class="screen_name">@{{user.screen_name}}</span></a>
+    </div>
+    <p class="tweet" id="{{id}}">{{html}} {% if truncated %}&#8230;{% endif %}</p>
+    <p class="created_at">{{display_date}}</p>
 
 
-    <p><b>place:</b> {{place}}</p>
-    <p><b>retweet_count:</b> {{retweet_count}}</p>
-    <p><b>favorite_count:</b> {{favorite_count}}</p>
-    <p><b>entities:</b> {{entities}}</p>
+    <!-- p><b>retweet_count:</b> {{retweet_count}}</p>
+    <p><b>favorite_count:</b> {{favorite_count}}</p -->
+    <!-- p><b>entities:</b> {{entities}}</p>
     TODO: { hashtags: [], symbols: [], urls: [], user_mentions: [] }
     {% for entity in entities %}
       <p>{{entity}}</p>
     {% endfor %}
     <p><b>favorited:</b> {{favorited}}</p>
-    <p><b>retweeted:</b> {{retweeted}}</p>
-    <p><b>lang</b>{{lang}}</p>
-
-
+    <p><b>retweeted:</b> {{retweeted}}</p -->
 </body>
 </html>
